@@ -14,7 +14,7 @@ let apiQuotes = [];
  * Displays the loader and hides the quote container
  */
 
-function loading() {
+function showLoadingSpinner() {
   loader.hidden = false;
   quoteContainer.hidden = true;
 }
@@ -22,7 +22,7 @@ function loading() {
 /**
  * Hides the loader and shows the quote container
  */
-function complete() {
+function removeLoadingSpinner() {
   quoteContainer.hidden = false;
   loader.hidden = true;
 }
@@ -31,7 +31,7 @@ function complete() {
  * Selects a random quote from the apiQuotes array and logs it to the console
  */
 function newQuote() {
-  loading();
+  showLoadingSpinner();
   // Pick a random quote from apiQuotes array
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
 
@@ -51,19 +51,26 @@ function newQuote() {
 
   // Set quote, hide loader
   quoteText.textContent = quote.text;
-  complete();
+  removeLoadingSpinner();
 }
 
 // Get Quotes from API
 async function getQuotes() {
-  loading();
+  showLoadingSpinner();
   const apiUrl = 'https://jacintodesign.github.io/quotes-api/data/quotes.json';
   try {
     const response = await fetch(apiUrl);
     apiQuotes = await response.json();
     newQuote();
   } catch (error) {
-    console.log(error);
+    let attempts = 0;
+    while (attempts < 10) {
+      attempts++;
+      getQuotes();
+    }
+    if (attempts >= 10) {
+      alert('Error occurred. Please try again later.');
+    }
   }
 }
 
